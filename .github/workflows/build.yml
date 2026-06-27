@@ -1,20 +1,21 @@
 name: Build unsigned IPA
 
-# Compile un IPA NON SIGNÉ sur les serveurs macOS gratuits de GitHub.
-# À récupérer dans l'onglet Actions → artefacts, puis à installer sur l'iPhone
-# avec Sideloadly (qui le signe avec ton Apple ID gratuit).
-# Astuce : dépôt PUBLIC = minutes macOS gratuites et illimitées.
-
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:        # permet de lancer le build à la main depuis l'onglet Actions
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Injecter la clé API YouTube (depuis le secret GitHub)
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+        run: |
+          printf 'enum Secrets { static let youtubeAPIKey = "%s" }\n' "$YT_API_KEY" > Sources/Secrets.swift
 
       - name: Installer XcodeGen
         run: brew install xcodegen
@@ -43,7 +44,7 @@ jobs:
           cp -r "$APP_PATH" build/Payload/
           cd build && zip -r SleepPause-unsigned.ipa Payload && rm -rf Payload
 
-      - name: Publier l'IPA en artefact téléchargeable
+      - name: Publier l'IPA en artefact
         uses: actions/upload-artifact@v4
         with:
           name: SleepPause-unsigned-ipa

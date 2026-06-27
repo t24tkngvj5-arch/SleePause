@@ -12,7 +12,7 @@ final class SleepDetector: NSObject, ObservableObject, ARSessionDelegate {
     /// Yeux fermés en continu pendant ce temps -> endormie.
     var sleepThreshold: TimeInterval = 8.0
     /// Yeux rouverts en continu pendant ce temps -> réveillée.
-    var wakeThreshold: TimeInterval = 1.5
+    var wakeThreshold: TimeInterval = 3.0
     /// Seuil au-dessus duquel un œil est compté comme fermé (0…1).
     var closedCutoff: Float = 0.55
 

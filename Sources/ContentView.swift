@@ -140,7 +140,11 @@ struct ContentView: View {
         }
     }
 
-    private func handleWake() { player.play(); statusText = "Réveillée — reprise" }
+    private func handleWake() {
+        player.seek(to: lastTimecode)   // on revient au point d'endormissement
+        player.play()
+        statusText = "Réveillée — reprise à \(format(lastTimecode))"
+    }
 
     private func format(_ s: Double) -> String { String(format: "%d:%02d", Int(s)/60, Int(s)%60) }
 }

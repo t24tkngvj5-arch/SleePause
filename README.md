@@ -8,37 +8,34 @@ ARKit), en mémorisant le time code exact pour reprendre plus tard.
 
 ```
 SleepPause/
-├── project.yml          # spec XcodeGen (génère le .xcodeproj dans le CI)
-├── codemagic.yaml       # pipeline de build + envoi TestFlight (sans Mac)
+├── .github/workflows/build.yml  # build IPA non signé sur macOS gratuit (GitHub Actions)
+├── project.yml                  # spec XcodeGen (génère le .xcodeproj)
+├── codemagic.yaml               # build + TestFlight (voie payante, pour plus tard)
 └── Sources/
-    ├── SleepPauseApp.swift     # point d'entrée @main
-    ├── ContentView.swift       # écran principal (assemble lecteur + détecteur)
-    ├── YouTubePlayerView.swift # lecteur YouTube IFrame dans une WKWebView
-    └── SleepDetector.swift     # détection d'endormissement via ARKit
+    ├── SleepPauseApp.swift       # point d'entrée @main
+    ├── ContentView.swift         # écran principal
+    ├── YouTubePlayerView.swift   # lecteur YouTube IFrame (WKWebView)
+    └── SleepDetector.swift       # détection d'endormissement (ARKit)
 ```
 
-## Prérequis
+## Deux façons de faire tourner l'app
 
-- Compte Apple Developer Program (99 $/an) — requis pour la signature et TestFlight.
-- Un appareil avec Face ID / TrueDepth pour tester la détection (iPhone 13 OK ;
-  côté iPad seuls les iPad Pro ont TrueDepth).
+### Option A — GRATUITE, sans Mac (pour développer/tester sur SON iPhone)
+1. Dépôt **public** sur GitHub → GitHub Actions compile un IPA non signé (`build.yml`).
+2. Récupère l'IPA dans l'onglet **Actions → artefacts**.
+3. Installe-le avec **Sideloadly** (Windows, gratuit) + un **Apple ID gratuit** + iPhone en USB.
+4. App valable 7 jours, à re-signer ensuite (démon auto Sideloadly). Limite : 3 apps.
+   → N'atteint que ton propre iPhone, pas un appareil distant.
 
-## Configuration (à faire une fois)
+### Option B — PAYANTE (99 €/an), pour livrer à quelqu'un d'autre via TestFlight
+1. Apple Developer Program + fiche app dans App Store Connect.
+2. Clé API App Store Connect → intégration Codemagic (nom = `ASC_API_KEY`).
+3. Codemagic lit `codemagic.yaml`, build + envoi TestFlight, installation sans câble à distance.
 
-1. **Bundle id** : remplace `com.antoine.sleeppause` par un identifiant à toi,
-   à l'identique dans `project.yml` ET `codemagic.yaml`.
-2. **Fiche app** dans App Store Connect avec ce bundle id. Récupère l'« Apple ID »
-   numérique de la fiche → variable `APP_STORE_APPLE_ID` dans `codemagic.yaml`.
-3. **Clé API App Store Connect** : Users and Access → Integrations → nouvelle clé
-   rôle *App Manager*. Télécharge le `.p8`, note *Key ID* et *Issuer ID*.
-   Dans Codemagic, crée l'intégration App Store Connect avec ces infos et donne-lui
-   le nom utilisé dans `codemagic.yaml` (`ASC_API_KEY`).
-4. **Branche ce dépôt sur Codemagic** et lance le workflow `ios-testflight`.
-5. **TestFlight** : ajoute-toi comme testeur *interne* → build dispo immédiatement,
-   sans revue bêta.
-
-## Réglages de détection
-
-Dans `SleepDetector.swift` :
+## Réglages de détection (Sources/SleepDetector.swift)
 - `threshold` (8 s) : durée yeux fermés avant de conclure à l'endormissement.
 - `closedCutoff` (0.55) : sensibilité de fermeture des yeux.
+
+## Prérequis matériel
+Appareil avec Face ID / TrueDepth pour la détection (iPhone 13 OK ;
+côté iPad, seuls les iPad Pro ont TrueDepth).

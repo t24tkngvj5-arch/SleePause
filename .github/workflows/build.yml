@@ -1,0 +1,50 @@
+name: Build unsigned IPA
+
+# Compile un IPA NON SIGNÉ sur les serveurs macOS gratuits de GitHub.
+# À récupérer dans l'onglet Actions → artefacts, puis à installer sur l'iPhone
+# avec Sideloadly (qui le signe avec ton Apple ID gratuit).
+# Astuce : dépôt PUBLIC = minutes macOS gratuites et illimitées.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:        # permet de lancer le build à la main depuis l'onglet Actions
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer XcodeGen
+        run: brew install xcodegen
+
+      - name: Générer le projet Xcode
+        run: xcodegen generate
+
+      - name: Archiver sans signature
+        run: |
+          xcodebuild archive \
+            -project SleepPause.xcodeproj \
+            -scheme SleepPause \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/SleepPause.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Empaqueter l'IPA non signé
+        run: |
+          APP_PATH=$(find build/SleepPause.xcarchive/Products/Applications -name "*.app" -maxdepth 1 | head -n 1)
+          mkdir -p build/Payload
+          cp -r "$APP_PATH" build/Payload/
+          cd build && zip -r SleepPause-unsigned.ipa Payload && rm -rf Payload
+
+      - name: Publier l'IPA en artefact téléchargeable
+        uses: actions/upload-artifact@v4
+        with:
+          name: SleepPause-unsigned-ipa
+          path: build/SleepPause-unsigned.ipa

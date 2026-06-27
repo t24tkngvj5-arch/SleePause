@@ -70,7 +70,7 @@ struct YouTubePlayerView: UIViewRepresentable {
 
     // ⚠️ Adapte cette URL à TON dépôt (pseudo GitHub / nom du repo).
     // GitHub Pages servira docs/player.html à cette adresse.
-    static let playerPageURL = URL(string: "https://t24tkngvj5-arch.github.io/SleepPause/player.html")!
+    static let playerPageURL = URL(string: "https://t24tkngvj5-arch.github.io/SleePause/player.html")!
 
     @ObservedObject var controller: YouTubePlayerController
     var onReady: (() -> Void)?

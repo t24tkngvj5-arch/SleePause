@@ -31,6 +31,7 @@ struct ContentView: View {
             .background(Color.black)
             .cornerRadius(12)
 
+            // Changer de vidéo : coller un lien YouTube (vidéo ou playlist)
             HStack {
                 TextField("Colle un lien YouTube (vidéo ou playlist)", text: $urlInput)
                     .textFieldStyle(.roundedBorder)
@@ -48,25 +49,31 @@ struct ContentView: View {
 
             HStack {
                 Circle().fill(detector.eyesClosed ? Color.orange : Color.green).frame(width: 12, height: 12)
-                Text(detector.eyesClosed ? "Yeux fermés…" : "Éveillée")
+                Text(detector.isAsleep ? "Endormie 😴" : (detector.eyesClosed ? "Yeux fermés…" : "Éveillée"))
                 Spacer()
                 Text(statusText).foregroundColor(.secondary)
             }
             .font(.subheadline).padding(.horizontal)
 
+            // Reprise manuelle (utile après avoir rouvert l'app)
             if lastTimecode > 1 {
                 Button {
-                    player.seek(to: lastTimecode); player.play(); detector.rearm()
+                    player.seek(to: lastTimecode); player.play(); detector.reset()
                     statusText = "Reprise à \(format(lastTimecode))"
                 } label: {
                     Label("Reprendre à \(format(lastTimecode))", systemImage: "play.circle.fill").font(.headline)
                 }
                 .buttonStyle(.bordered)
             }
+
             Spacer()
         }
         .padding()
-        .onAppear { detector.onAsleep = handleAsleep; detector.start() }
+        .onAppear {
+            detector.onAsleep = handleAsleep
+            detector.onWake   = handleWake
+            detector.start()
+        }
         .onDisappear { detector.stop() }
     }
 
@@ -74,17 +81,27 @@ struct ContentView: View {
         guard let content = YouTubeContent.parse(urlInput) else { statusText = "Lien non reconnu"; return }
         player.load(content)
         UserDefaults.standard.set(urlInput, forKey: "lastContentURL")
-        lastTimecode = 0; UserDefaults.standard.set(0.0, forKey: "lastTimecode")
-        detector.rearm(); statusText = "Chargé"
+        lastTimecode = 0
+        UserDefaults.standard.set(0.0, forKey: "lastTimecode")
+        detector.reset()
+        statusText = "Chargé"
     }
 
+    // Endormie : on note le time code et on met en pause.
     private func handleAsleep() {
         Task {
             let t = await player.currentTime()
             player.pause()
-            lastTimecode = t; UserDefaults.standard.set(t, forKey: "lastTimecode")
+            lastTimecode = t
+            UserDefaults.standard.set(t, forKey: "lastTimecode")
             statusText = "Endormie — pause à \(format(t))"
         }
+    }
+
+    // Réveillée : la vidéo repart d'où elle s'était arrêtée.
+    private func handleWake() {
+        player.play()
+        statusText = "Réveillée — reprise"
     }
 
     private func format(_ s: Double) -> String { String(format: "%d:%02d", Int(s)/60, Int(s)%60) }

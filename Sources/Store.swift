@@ -4,6 +4,7 @@ import SwiftUI
 enum Config {
     // ⚠️ URL de la page du lecteur (GitHub Pages). Doit matcher le nom du dépôt.
     static let playerPageURL = URL(string: "https://t24tkngvj5-arch.github.io/SleePause/player.html")!
+    static let partnerName = "Cléo"
 }
 
 struct VideoRef: Codable, Identifiable, Equatable {
@@ -29,7 +30,6 @@ final class AppState: ObservableObject {
     @Published var fadeEnabled:    Bool   { didSet { d.set(fadeEnabled,    forKey: "fadeEnabled") } }
     @Published var dimEnabled:     Bool   { didSet { d.set(dimEnabled,     forKey: "dimEnabled") } }
     @Published var keepAwake:      Bool   { didSet { d.set(keepAwake,      forKey: "keepAwake") } }
-    @Published var partnerName:    String { didSet { d.set(partnerName,    forKey: "partnerName") } }
 
     // Bibliothèque
     @Published var favorites: [VideoRef] { didSet { saveJSON(favorites, "favorites") } }
@@ -44,7 +44,6 @@ final class AppState: ObservableObject {
         fadeEnabled    = d.object(forKey: "fadeEnabled")    as? Bool ?? true
         dimEnabled     = d.object(forKey: "dimEnabled")     as? Bool ?? true
         keepAwake      = d.object(forKey: "keepAwake")      as? Bool ?? true
-        partnerName    = d.string(forKey: "partnerName") ?? ""
         favorites = AppState.loadJSON("favorites") ?? []
         recents   = AppState.loadJSON("recents") ?? []
         sleepLog  = AppState.loadJSON("sleepLog") ?? []

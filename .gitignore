@@ -1,0 +1,18 @@
+# Projet Xcode : généré par XcodeGen dans le CI, on ne le committe pas
+*.xcodeproj/
+DerivedData/
+build/
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Secrets de signature : NE JAMAIS committer
+*.p8
+*.mobileprovision
+*.cer
+*.certSigningRequest
+.env
+
+# macOS
+.DS_Store
+Sources/Secrets.swift

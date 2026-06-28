@@ -326,7 +326,7 @@ struct ContentView: View {
         let emojis  = ["🌙", "✨", "💤", "🌟"]
         let p = phrases.randomElement() ?? "Bonne nuit"
         let e = emojis.randomElement() ?? "🌙"
-        goodnightText = app.partnerName.isEmpty ? "\(p) \(e)" : "\(p), \(app.partnerName) \(e)"
+        goodnightText = "\(p), \(Config.partnerName) \(e)"
         withAnimation(.easeIn(duration: 0.5)) { showGoodnight = true }
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
             withAnimation(.easeOut(duration: 0.8)) { showGoodnight = false }

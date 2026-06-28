@@ -23,10 +23,6 @@ struct SettingsView: View {
                     Toggle("Baisser la luminosité", isOn: $app.dimEnabled)
                     Toggle("Garder l'écran allumé", isOn: $app.keepAwake)
                 }
-                Section("Personnalisation") {
-                    TextField("Son prénom (mot de bonne nuit)", text: $app.partnerName)
-                        .autocorrectionDisabled(true)
-                }
                 Section("Sommeil") {
                     if let avg = app.weeklyAverageMinutes {
                         Label("Cette semaine : endormie après \(Int(avg.rounded())) min en moyenne",
